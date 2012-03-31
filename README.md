@@ -4,7 +4,7 @@ Sheep herding! Thrills! Spills! Sheep bursting excitement!
 
 ## Tasklist
 
-[Managed at trello][trello]
+- [Main list at trello.][trello]
 
 ## Research
 
