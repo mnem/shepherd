@@ -1,16 +1,16 @@
-== Shepherd
+# Shepherd
 
 Sheep herding! Thrills! Spills! Sheep bursting excitement!
 
-=== Tasklist
+## Tasklist
 
 [Managed at trello][trello]
 
-=== Research
+## Research
 
 - [Initial thoughts.][gd_initial]
 
-=== Folders
+## Folders
 
 - mocks
  - Mocks and test artwork
