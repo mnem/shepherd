@@ -1,6 +1,8 @@
-SOURCES = Dir.glob('coffee/*.coffee')
+SRC = Dir.glob('coffee/*.coffee')
+SRC_COMPONENTS = Dir.glob('coffee/components/*.coffee')
+SRC_ENTITIES = Dir.glob('coffee/entities/*.coffee')
 OUTPUT = 'public/js/game.js'
-COMPILE_FRAGMENT = "-cj #{OUTPUT} #{SOURCES.join(" ")}"
+COMPILE_FRAGMENT = "-cj #{OUTPUT} #{SRC_COMPONENTS.join(" ")} #{SRC_ENTITIES.join(" ")} #{SRC.join(" ")}"
 
 def command_echoing_output(cmd)
     $stdout::puts cmd
