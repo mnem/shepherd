@@ -39,7 +39,7 @@
 	},
 
 	GUID = 1, //GUID for entity IDs
-	FPS = 50,
+	FPS = 20,
 	frame = 1,
 
 	components = {}, //map of components and their functions
