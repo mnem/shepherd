@@ -1,12 +1,36 @@
-SRC = Dir.glob('coffee/*.coffee')
-SRC_COMPONENTS = Dir.glob('coffee/components/*.coffee')
-SRC_ENTITIES = Dir.glob('coffee/entities/*.coffee')
+def gather_files_to_compile
+    files = Dir.glob('coffee/components/*.coffee')
+    files << Dir.glob('coffee/entities/*.coffee')
+    files << Dir.glob('coffee/*.coffee')
+    files.flatten!
+end
+
+$source_files = gather_files_to_compile
 OUTPUT = 'public/js/game.js'
-COMPILE_FRAGMENT = "-cj #{OUTPUT} #{SRC_COMPONENTS.join(" ")} #{SRC_ENTITIES.join(" ")} #{SRC.join(" ")}"
+
+def generate_compile_fragment
+    $compile_fragment = "-cj #{OUTPUT} #{$source_files.join(" ")}"
+end
+
+generate_compile_fragment
 
 def command_echoing_output(cmd)
     $stdout::puts cmd
-    IO::popen(cmd) { |o| o.each { |output| $stdout::print output } }
+    IO::popen(cmd) do |o|
+        o.each do |output|
+            $stdout::print output
+            check_files = gather_files_to_compile
+            if check_files.length != $source_files.length
+                # A different set of files are available to watch
+                $source_files = check_files
+                generate_compile_fragment
+
+                # Kill the process so we can ask coffee to watch the new
+                # file list
+                Process.kill 'INT', o.pid
+            end
+        end
+    end
 end
 
 desc "Deletes generated files"
@@ -16,10 +40,13 @@ end
 
 desc "Generates builder JavaScript"
 task :default do
-    command_echoing_output "coffee #{COMPILE_FRAGMENT}"
+    command_echoing_output "coffee #{$compile_fragment}"
 end
 
 desc "Watches the files and recompiles as necessary"
 task :watch do
-    command_echoing_output "coffee -w #{COMPILE_FRAGMENT}"
+    while true
+        $stdout::puts "Watching for changed files. Press CTRL-C to end."
+        command_echoing_output "coffee -w #{$compile_fragment}"
+    end
 end
