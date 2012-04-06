@@ -1,0 +1,25 @@
+SRC = Dir.glob('coffee/*.coffee')
+SRC_COMPONENTS = Dir.glob('coffee/components/*.coffee')
+SRC_ENTITIES = Dir.glob('coffee/entities/*.coffee')
+OUTPUT = 'public/js/game.js'
+COMPILE_FRAGMENT = "-cj #{OUTPUT} #{SRC_COMPONENTS.join(" ")} #{SRC_ENTITIES.join(" ")} #{SRC.join(" ")}"
+
+def command_echoing_output(cmd)
+    $stdout::puts cmd
+    IO::popen(cmd) { |o| o.each { |output| $stdout::print output } }
+end
+
+desc "Deletes generated files"
+task :clean do
+    File.delete OUTPUT if File.exists? OUTPUT
+end
+
+desc "Generates builder JavaScript"
+task :default do
+    command_echoing_output "coffee #{COMPILE_FRAGMENT}"
+end
+
+desc "Watches the files and recompiles as necessary"
+task :watch do
+    command_echoing_output "coffee -w #{COMPILE_FRAGMENT}"
+end
