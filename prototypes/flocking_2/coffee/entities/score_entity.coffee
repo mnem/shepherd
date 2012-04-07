@@ -1,6 +1,6 @@
 class ScoreEntity
     constructor: ->
-        @entity =  Crafty.e("2D, DOM, Text")
+        @entity =  Crafty.e("2D, DOM, Text, debug.framerate")
             .text("Score: 0")
             .attr(
                 x: Crafty.viewport.width - 300,

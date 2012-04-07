@@ -28,7 +28,7 @@ def file_lists_identical?(a, b)
 end
 
 def command_echoing_output(cmd, exit_when_file_list_changes = false)
-    $stdout::puts cmd
+    say "<%=color('#{cmd}', RED)%>"
     IO::popen(cmd) do |o|
         if exit_when_file_list_changes
             watch_for_new_files_thread = Thread.new do
@@ -42,7 +42,7 @@ def command_echoing_output(cmd, exit_when_file_list_changes = false)
             end
         end
 
-        o.each { |output| say "<%=color('#{output.strip!}', RED)%>" }
+        o.each { |output| print output }
 
         watch_for_new_files_thread.join if exit_when_file_list_changes
     end

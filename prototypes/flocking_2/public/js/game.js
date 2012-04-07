@@ -79,6 +79,34 @@
     }
   }, this._x > Crafty.viewport.width ? this.direction.x = this.xspeed = -1 : void 0, this._x < -64 ? this.direction.x = this.xspeed = 1 : void 0, this._y > Crafty.viewport.height ? this.direction.y = this.yspeed = -1 : void 0, this._y < 0 ? this.direction.y = this.yspeed = 1 : void 0);
 
+  Crafty.c('debug.framerate', {
+    init: function() {
+      this._last_frame_time = Date.now();
+      this._samples = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+      this._next_sample_index = 0;
+      this._average_fps = 0;
+      return this.bind('EnterFrame', function() {
+        var elapsed, now, sample, sample_total, _i, _len, _ref;
+        now = Date.now();
+        elapsed = now - this._last_frame_time;
+        this._last_frame_time = now;
+        this._samples[this._next_sample_index] = elapsed;
+        this._next_sample_index = this._next_sample_index + 1;
+        if (this._next_sample_index >= this._samples.length) {
+          this._next_sample_index = 0;
+        }
+        sample_total = 0;
+        _ref = this._samples;
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          sample = _ref[_i];
+          sample_total += sample;
+        }
+        this._average_fps = 1000 / (sample_total / this._samples.length);
+        return console.log("Average FPS: " + (Math.floor(this._average_fps)));
+      });
+    }
+  });
+
   PlayerEntity = (function() {
 
     function PlayerEntity(asteroidCount, lastCount) {
@@ -161,15 +189,10 @@
     }
 
     PlayerEntity.prototype.initRocks = function(lower, upper) {
-      var i, rocks, _results;
+      var rocks;
       rocks = Crafty.math.randomInt(lower, upper);
       this.asteroidCount = rocks;
-      this.lastCount = rocks;
-      _results = [];
-      for (i = 0; 0 <= rocks ? i <= rocks : i >= rocks; 0 <= rocks ? i++ : i--) {
-        _results.push(Crafty.e("2D, DOM, small, Collision, asteroid"));
-      }
-      return _results;
+      return this.lastCount = rocks;
     };
 
     return PlayerEntity;
@@ -179,7 +202,7 @@
   ScoreEntity = (function() {
 
     function ScoreEntity() {
-      this.entity = Crafty.e("2D, DOM, Text").text("Score: 0").attr({
+      this.entity = Crafty.e("2D, DOM, Text, debug.framerate").text("Score: 0").attr({
         x: Crafty.viewport.width - 300,
         y: Crafty.viewport.height - 50,
         w: 200,
@@ -226,7 +249,7 @@
   graphics_loaded = false;
 
   $(document).ready(function() {
-    Crafty.init();
+    Crafty.init(480, 320);
     Crafty.canvas.init();
     Crafty.modules(IMPORT_MODULES, function() {
       modules_loaded = true;
@@ -248,12 +271,9 @@
   };
 
   Crafty.scene("main", function() {
-    var bg;
-    bg = Crafty.e('TiledLevel');
-    console.log(bg);
     Crafty.background("url('images/bg.png')");
-    new ScoreEntity;
-    return new PlayerEntity().initRocks(60, 60);
+    new ScoreEntity();
+    return new PlayerEntity();
   });
 
 }).call(this);

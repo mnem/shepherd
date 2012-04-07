@@ -102,6 +102,6 @@ class PlayerEntity
         @asteroidCount = rocks
         @lastCount = rocks
 
-        for i in [0..rocks]
-            Crafty.e("2D, DOM, small, Collision, asteroid")
+        # for i in [0..rocks]
+        #     Crafty.e("2D, DOM, small, Collision, asteroid")
 
