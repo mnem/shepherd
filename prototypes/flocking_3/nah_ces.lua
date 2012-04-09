@@ -1,7 +1,7 @@
 module(..., package.seeall);
 
 ------------------------------------------------------------------------------
--- Private system utilities --------------------------------------------
+-- Private system utilities #################################################-
 ------------------------------------------------------------------------------
 function entityMatchesSystemCriteria(system, entity)
     if system._cached_entity_matches[entity] == nil then
@@ -55,25 +55,49 @@ local function addEntityToAllSystems(entity)
 end
 
 ------------------------------------------------------------------------------
+-- Public shizz #############################################################-
+------------------------------------------------------------------------------
+
+------------------------------------------------------------------------------
 -- Component -----------------------------------------------------------------
 ------------------------------------------------------------------------------
 local Component = { _creation_count = 0 }
 local Component_mt = { __index = Component }
-function Component:create(entity)
+
+-- Creates a new component for the specified entity
+function Component:add_to(entity)
     Component._creation_count = Component._creation_count + 1
     local new_component = {
         entity = entity,
         component_uid = Component._creation_count,
-        component_base = self }
+        component_base = self
+    }
     setmetatable( new_component, { __index = self } )
-    new_component:init()
+
+    entity.components_by_base[new_component.component_base] = new_component
+    new_component:init(entity)
     return new_component
 end
-function Component:init()
+
+-- Called as soon as a new instance of the component is created for
+-- an entity
+function Component:init(entity)
 end
+
+-- Called when an entity using this compnent has had all it's other
+-- components created
 function Component:entityInited(entity)
 end
+
 -- Component factory ---------------------------------------------------
+-- Creates a new component with the specifed id, requiring the
+-- specified components. For example:
+--    2d = newComponent("2d", component_sound)
+--
+-- If an entity includes the component created, but not once of the
+-- components you have specified as a dependency, the dependent
+-- component is forced into the new entity with whatever values
+-- are default.
 function newComponent(id, ...)
     local registered_component = {
         entity = nil,
@@ -92,7 +116,11 @@ end
 ------------------------------------------------------------------------------
 local Entity = {}
 local Entity_mt = { __index = Entity }
+
 -- Entity factory ------------------------------------------------------
+-- Creates a new entity with the specifed id, assembled from the
+-- specified components. For example:
+--    bob = newEntity("Big Bob", component_2d, component_player, component_input)
 function newEntity(id, ...)
     local new_entity = {
         entity_id = id,
@@ -102,8 +130,7 @@ function newEntity(id, ...)
 
     -- Create the component instances
     for i = 1, arg.n do
-        local new_component = arg[i]:create(new_entity)
-        new_entity.components_by_base[new_component.component_base] = new_component
+        arg[i]:add_to(new_entity)
     end
 
     -- Add any missing required components
@@ -112,9 +139,7 @@ function newEntity(id, ...)
         for i = 1, #base._required_components do
             required = base._required_components[i]
             if new_entity.components_by_base[required] == nil then
-                log.print('Required component ' .. required.component_id .. ' missing for entity ' .. id .. ' - forcing creation')
-                local new_component = required:create(new_entity)
-                new_entity.components_by_base[new_component.component_base] = new_component
+                required:add_to(new_entity)
             end
         end
     end
@@ -137,13 +162,23 @@ end
 ------------------------------------------------------------------------------
 local System = {}
 local System_mt = { __index = System }
+
+-- Called once for each new entity added to this system
 function System:entityAdded(entity)
 end
+
+-- Called once per love.draw.
 function System:draw()
 end
+
+-- Called once per love.update
 function System:update()
 end
+
 -- System factory ------------------------------------------------------
+-- Creates a new system object for customisation with the specified id
+-- which cares about the specifed components. For example:
+--    renderer = newSystem("Render Sys", component_image)
 function newSystem(id, ...)
     local new_system = {
         system_id = id,
@@ -159,6 +194,8 @@ function newSystem(id, ...)
     setmetatable( new_system, System_mt )
     return new_system
 end
+
+-- Activates a system object after it's been customised/extended
 function activateSystem(system)
     for i = 1, #allSystems do
         if allSystems[i] == system then
@@ -172,11 +209,15 @@ function activateSystem(system)
         addEntityToSystem(system, entity)
     end
 end
+
+-- Call this to allow all the systems a chance to update entities
 function updateSystems()
     for i = 1, #allSystems do
         allSystems[i]:update()
     end
 end
+
+-- Call this to allow all the systems a chance to draw entities
 function drawSystems()
     for i = 1, #allSystems do
         allSystems[i]:draw()
