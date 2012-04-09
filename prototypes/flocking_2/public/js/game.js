@@ -1,5 +1,5 @@
 (function() {
-  var GRAPHICS_MAPPING, IMPORT_GRAPHICS, IMPORT_MODULES, PlayerEntity, ScoreEntity, graphics_loaded, mapping, modules_loaded, path, try_start;
+  var DebugEntity, FieldEntity, GRAPHICS_MAPPING, IMPORT_GRAPHICS, IMPORT_MODULES, PlayerEntity, SheepEntity, graphics_loaded, mapping, modules_loaded, path, try_start;
 
   Crafty.c("asteroid", {
     init: function() {
@@ -79,12 +79,16 @@
     }
   }, this._x > Crafty.viewport.width ? this.direction.x = this.xspeed = -1 : void 0, this._x < -64 ? this.direction.x = this.xspeed = 1 : void 0, this._y > Crafty.viewport.height ? this.direction.y = this.yspeed = -1 : void 0, this._y < 0 ? this.direction.y = this.yspeed = 1 : void 0);
 
-  Crafty.c('debug.framerate', {
+  Crafty.c('debug.Framerate', {
     init: function() {
       this._last_frame_time = Date.now();
       this._samples = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
       this._next_sample_index = 0;
-      this._average_fps = 0;
+      this._min_max_sample_range = 200;
+      this._min_max_reset_count = 10;
+      this.avg_fps = 0;
+      this.min_fps = 100000;
+      this.max_fps = 0;
       return this.bind('EnterFrame', function() {
         var elapsed, now, sample, sample_total, _i, _len, _ref;
         now = Date.now();
@@ -101,11 +105,59 @@
           sample = _ref[_i];
           sample_total += sample;
         }
-        this._average_fps = 1000 / (sample_total / this._samples.length);
-        return console.log("Average FPS: " + (Math.floor(this._average_fps)));
+        this.avg_fps = 1000 / (sample_total / this._samples.length);
+        this._min_max_reset_count -= 1;
+        if (this._min_max_reset_count < 0) {
+          this.min_fps = 100000;
+          this.max_fps = 0;
+          this._min_max_reset_count = this._min_max_sample_range;
+        }
+        if (this.avg_fps < this.min_fps) this.min_fps = this.avg_fps;
+        if (this.avg_fps > this.max_fps) return this.max_fps = this.avg_fps;
       });
     }
   });
+
+  DebugEntity = (function() {
+
+    function DebugEntity() {
+      this.entity = Crafty.e("DOM, debug.Framerate, Text");
+      this.init();
+    }
+
+    DebugEntity.prototype.init = function() {
+      var _this = this;
+      this.entity.bind('EnterFrame', function() {
+        return _this.update();
+      });
+      this.entity.width = 200;
+      return this.entity.css({
+        color: "#fff"
+      });
+    };
+
+    DebugEntity.prototype.update = function() {
+      return this.entity.text("fps:&nbsp;" + (Math.round(this.entity.avg_fps)) + "&nbsp;min:&nbsp;" + (Math.round(this.entity.min_fps)) + "&nbsp;max:&nbsp;" + (Math.round(this.entity.max_fps)));
+    };
+
+    return DebugEntity;
+
+  })();
+
+  FieldEntity = (function() {
+
+    function FieldEntity() {
+      this.entity = Crafty.e('TiledLevel').tiledLevel('levels/field.json');
+      this.init();
+    }
+
+    FieldEntity.prototype.init = function() {
+      return this;
+    };
+
+    return FieldEntity;
+
+  })();
 
   PlayerEntity = (function() {
 
@@ -199,26 +251,35 @@
 
   })();
 
-  ScoreEntity = (function() {
+  SheepEntity = (function() {
 
-    function ScoreEntity() {
-      this.entity = Crafty.e("2D, DOM, Text, debug.framerate").text("Score: 0").attr({
-        x: Crafty.viewport.width - 300,
-        y: Crafty.viewport.height - 50,
-        w: 200,
-        h: 50
-      }).css({
-        color: "#fff"
-      });
+    function SheepEntity() {
+      this.entity = Crafty.e("2D, DOM, SheepImage, Collision, WiredHitBox");
+      this.init();
     }
 
-    return ScoreEntity;
+    SheepEntity.prototype.init = function() {
+      console.log(this.entity);
+      this.entity.attr({
+        x: Crafty.viewport.width / 2,
+        y: Crafty.viewport.height / 2
+      });
+      return this.entity.collision(new Crafty.circle(this.entity._w / 2, this.entity._h / 2, 20));
+    };
+
+    SheepEntity.prototype.update = function() {
+      var colliding_sheep;
+      return colliding_sheep = this.entity.hit('SheepImage');
+    };
+
+    return SheepEntity;
 
   })();
 
   IMPORT_MODULES = {
     TiledLevel: 'DEV',
-    MoveTo: 'DEV'
+    MoveTo: 'DEV',
+    HitBox: 'DEV'
   };
 
   GRAPHICS_MAPPING = {
@@ -228,7 +289,7 @@
         ship: [0, 0],
         big: [1, 0],
         medium: [2, 0],
-        small: [3, 0]
+        SheepImage: [3, 0]
       }
     },
     "images/bg.png": null
@@ -249,7 +310,7 @@
   graphics_loaded = false;
 
   $(document).ready(function() {
-    Crafty.init(480, 320);
+    Crafty.init(480 * 2, 320 * 2);
     Crafty.canvas.init();
     Crafty.modules(IMPORT_MODULES, function() {
       modules_loaded = true;
@@ -271,9 +332,12 @@
   };
 
   Crafty.scene("main", function() {
-    Crafty.background("url('images/bg.png')");
-    new ScoreEntity();
-    return new PlayerEntity();
+    var i;
+    Crafty.background("url('images/black_bg.png')");
+    for (i = 0; i <= 0; i++) {
+      new SheepEntity();
+    }
+    return new DebugEntity();
   });
 
 }).call(this);

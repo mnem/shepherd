@@ -2,7 +2,7 @@ modules_loaded = false
 graphics_loaded = false
 
 $(document).ready ->
-    Crafty.init(480, 320)
+    Crafty.init(480 * 2, 320 * 2)
     Crafty.canvas.init()
 
     Crafty.modules IMPORT_MODULES, ->

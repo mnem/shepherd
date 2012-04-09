@@ -39,7 +39,7 @@
 	},
 
 	GUID = 1, //GUID for entity IDs
-	FPS = 20,
+	FPS = 30,
 	frame = 1,
 
 	components = {}, //map of components and their functions
@@ -241,9 +241,9 @@
             var i = 0, l, comps;
             if (arguments.length > 1) {
                 l = arguments.length;
-                        
+
                 for (; i < l; i++) {
-                    if(this.has(arguments[i])){ 
+                    if(this.has(arguments[i])){
                         this.removeComponent(arguments[i]);
                     }else{
                         this.addComponent(arguments[i]);
@@ -254,22 +254,22 @@
                 comps = toggle.split(rlist);
                 l = comps.length;
                 for (; i < l; i++) {
-                    if(this.has(comps[i])){ 
+                    if(this.has(comps[i])){
                         this.removeComponent(comps[i]);
                     }else{
                         this.addComponent(comps[i]);
                     }
                 }
-                
+
             //single component passed
             } else {
-                if(this.has(toggle)){ 
+                if(this.has(toggle)){
                     this.removeComponent(toggle);
                 }else{
                     this.addComponent(toggle);
                 }
             }
-   
+
             return this;
         },
 		/**@
@@ -900,12 +900,12 @@
 	* Creates a component where the first argument is the ID and the second
 	* is the object that will be inherited by entities.
 	*
-	* There is a convention for writing components. 
+	* There is a convention for writing components.
 	*
 	* - Properties or methods that start with an underscore are considered private.
 	* - A method called `init` will automatically be called as soon as the
 	* component is added to an entity.
-	* - A methid called `uninit` will be called when the component is removed from an entity. 
+	* - A methid called `uninit` will be called when the component is removed from an entity.
 	* A sample use case for this is the native DOM component that removes its div element wehen removed from an entity.
 	* - A method with the same name as the component is considered to be a constructor
 	* and is generally used when you need to pass configuration data to the component on a per entity basis.
@@ -1372,7 +1372,7 @@
 /**@
 * #Crafty.HashMap
 * @category 2D
-* Broad-phase collision detection engine. See background information at 
+* Broad-phase collision detection engine. See background information at
 *
 * - [N Tutorial B - Broad-Phase Collision](http://www.metanetsoftware.com/technique/tutorialB.html)
 * - [Broad-Phase Collision Detection with CUDA](http.developer.nvidia.com/GPUGems3/gpugems3_ch32.html)
@@ -1427,7 +1427,7 @@
 /**@
 * #Crafty.map
 * @category 2D
-* Functions related with quering entities. 
+* Functions related with quering entities.
 * @see Crafty.HashMap
 */
 Crafty.map = new Crafty.HashMap();
@@ -2161,7 +2161,7 @@ Crafty.c("Gravity", {
 	* @comp Gravity
 	* @sign public this .gravity([comp])
 	* @param comp - The name of a component that will stop this entity from falling
-	* Enable gravity for this entity no matter whether comp parameter is not specified, 
+	* Enable gravity for this entity no matter whether comp parameter is not specified,
 	* If comp parameter is specified all entities with that component will stop this entity from falling.
 	* For a player entity in a platform game this would be a component that is added to all entities
 	* that the player should be able to walk on.
@@ -3788,13 +3788,13 @@ Crafty.extend({
 			 * `Crafty.stage.inner` is a div inside the `#cr-stage` div that holds all DOM entities.
 			 * If you use canvas, a `canvas` element is created at the same level in the dom
 			 * as the the `Crafty.stage.inner` div. So the hierarchy in the DOM is
-			 * 
+			 *
 			 * `Crafty.stage.elem`
 			 * <!-- not sure how to do indentation in the document-->
 			 *
 			 *     - `Crafty.stage.inner` (a div HTMLElement)
 			 *
-			 *     - `Crafty.canvas._canvas` (a canvas HTMLElement) 
+			 *     - `Crafty.canvas._canvas` (a canvas HTMLElement)
 			 */
 
 			//create stage div to contain everything
@@ -4234,7 +4234,7 @@ Crafty.c("Canvas", {
 
 			context.rotate((this._rotation % 360) * (Math.PI / 180));
 		}
-		
+
 		if(this._flipX || this._flipY) {
 			context.save();
 			context.scale((this._flipX ? -1 : 1), (this._flipY ? -1 : 1));
@@ -4245,7 +4245,7 @@ Crafty.c("Canvas", {
 				pos._y = -(pos._y + pos._h)
 			}
 		}
-		
+
 		//draw with alpha
 		if (this._alpha < 1.0) {
 			var globalpha = context.globalAlpha;
@@ -4674,7 +4674,7 @@ Crafty.c("Draggable", {
 	* @sign public this .dragDirection(vector)
   * @param vector - Of the form of {x: valx, y: valy}, the vector (valx, valy) denotes the move direction.
 	* @sign public this .dragDirection(degree)
-  * @param degree - A number, the degree (clockwise) of the move direction with respect to the x axis. 
+  * @param degree - A number, the degree (clockwise) of the move direction with respect to the x axis.
 	* Specify the dragging direction.
 	* @example
 	* ~~~
@@ -6119,7 +6119,7 @@ Crafty.extend({
             var pos = this.pos2px(x,y);
             pos.top -= z * (this._tile.width / 2);
             obj.attr({
-                x: pos.left + Crafty.viewport._x, 
+                x: pos.left + Crafty.viewport._x,
                 y: pos.top + Crafty.viewport._y
             }).z += z;
             return this;
@@ -6128,7 +6128,7 @@ Crafty.extend({
          * #Crafty.isometric.pos2px
          * @comp Crafty.isometric
          * @sign public this Crafty.isometric.pos2px(Number x,Number y)
-         * @param x 
+         * @param x
          * @param y
          * @return Object {left Number,top Number}
          * This method calculate the X and Y Coordiantes to Pixel Positions
@@ -6141,14 +6141,14 @@ Crafty.extend({
         pos2px:function(x,y){
             return {
                 left:x * this._tile.width + (y & 1) * (this._tile.width / 2),
-                top:y * this._tile.height / 2 
+                top:y * this._tile.height / 2
             }
         },
          /**@
          * #Crafty.isometric.px2pos
          * @comp Crafty.isometric
          * @sign public this Crafty.isometric.px2pos(Number left,Number top)
-         * @param top 
+         * @param top
          * @param left
          * @return Object {x Number,y Number}
          * This method calculate pixel top,left positions to x,y coordiantes
@@ -6162,13 +6162,13 @@ Crafty.extend({
             return {
                 x:Math.ceil(-left / this._tile.width - (top & 1)*0.5),
                 y:-top / this._tile.height * 2
-            }; 
+            };
         },
           /**@
          * #Crafty.isometric.centerAt
          * @comp Crafty.isometric
          * @sign public this Crafty.isometric.centerAt(Number x,Number y)
-         * @param top 
+         * @param top
          * @param left
          * This method center the Viewport at x/y location or gives the current centerpoint of the viewport
          * ~~~
@@ -6177,7 +6177,7 @@ Crafty.extend({
          * console.log(iso.centerAt());
          * ~~~
          */
-        centerAt:function(x,y){   
+        centerAt:function(x,y){
             if(typeof x == "number" && typeof y == "number"){
                 var center = this.pos2px(x,y);
                 Crafty.viewport._x = -center.left+Crafty.viewport.width/2-this._tile.width/2;
@@ -6187,7 +6187,7 @@ Crafty.extend({
                 return {
                     top:-Crafty.viewport._y+Crafty.viewport.height/2-this._tile.height/2,
                     left:-Crafty.viewport._x+Crafty.viewport.width/2-this._tile.width/2
-                } 
+                }
             }
         },
           /**@
@@ -6203,7 +6203,7 @@ Crafty.extend({
          *for(var x = area.x.start ;x <= area.x.end;x++){
          *       iso.place(x,y,0,Crafty.e("2D,DOM,gras")); //Display tiles in the Screen
          *   }
-         *}  
+         *}
          * ~~~
          */
         area:function(){
@@ -6221,7 +6221,7 @@ Crafty.extend({
                     end : end.y
                 }
             };
-        } 
+        }
     }
 });
 
@@ -7690,7 +7690,7 @@ Crafty.extend({
 	*
 	* `onError` will be passed with the asset that couldn't load.
   *
-	* When `onError` is not provided, the onLoad is loaded even some assests are not successfully loaded. Otherwise, onLoad will be called no matter whether there are errors or not. 
+	* When `onError` is not provided, the onLoad is loaded even some assests are not successfully loaded. Otherwise, onLoad will be called no matter whether there are errors or not.
 	* @example
 	* ~~~
 	* Crafty.load(["images/sprite.png", "sounds/jump.mp3"],
