@@ -103,6 +103,46 @@ class PlayerEntity
         @asteroidCount = rocks
         @lastCount = rocks
 
+
+        Crafty.orderedSheepX = []
+        Crafty.orderedSheepY = []
+        Crafty.sortedInsertion = @sortedInsertion
         for i in [0..rocks]
-            Crafty.e("2D, DOM, small, Collision, asteroid")
+            sheep = Crafty.e("2D, DOM, small, Collision, sheep")
+            @sortedInsertion Crafty.orderedSheepX, sheep, "x"
+            @sortedInsertion Crafty.orderedSheepY, sheep, "y"
+
+
+    printArray: (arr) ->
+        console.log "-----------"
+        for i in [0..arr.length-1]
+            console.log i, arr[i].x
+        console.log "-----------"
+        return
+
+    sortedInsertion: (arr, element, property, justIndex) ->
+        if arr.length == 0 and not justIndex
+            arr.push element
+            return
+        imin = 0
+        imax = arr.length-1
+        imid = 0
+        while imax > imin
+            imid = (imax+imin)>>1
+            p = arr[imid]
+            if element[property] > p[property]
+                imin = imid+1
+            else if element[property] < p[property]
+                imax = imid-1
+            else
+                break
+
+        # find out which index to return
+        return imin if justIndex
+
+        targetIndex = if arr[imin]["x"] < element["x"] then imin+1 else imin
+        arr[targetIndex...targetIndex] = [element]
+
+            
+            
 

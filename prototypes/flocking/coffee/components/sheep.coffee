@@ -1,10 +1,10 @@
-Crafty.c "asteroid",
+Crafty.c "sheep",
     init: ->
         this.origin "center"
 
         this.attr
-            x: Crafty.math.randomInt(10, Crafty.viewport.width - 10),
-            y: Crafty.math.randomInt(10, Crafty.viewport.height - 10),
+            x: Crafty.math.randomInt(Crafty.viewport.width/2 - 200, Crafty.viewport.width/2 + 200 ),
+            y: Crafty.math.randomInt(200, Crafty.viewport.height - 200),
             xspeed: Crafty.math.randomInt(1, 5),
             yspeed: Crafty.math.randomInt(1, 5),
             rspeed: Crafty.math.randomInt(-5, 5),
@@ -15,15 +15,40 @@ Crafty.c "asteroid",
             #this.y += this.yspeed
             #this.rotation += this.rspeed
 
-            sheep = Crafty("asteroid")
+
+            minDistance = 50
+            element =
+                x: this.x - minDistance
+                y: this.y - minDistance
+
+
+
+            
+            lowIndex = Crafty.sortedInsertion Crafty.orderedSheepX, element, "x", true
+            element.x = this.x + minDistance
+            highIndex = Crafty.sortedInsertion Crafty.orderedSheepX, element, "x", true
+
+            sheepX = Crafty.orderedSheepX[lowIndex..highIndex]
+
+
+            lowIndex = Crafty.sortedInsertion Crafty.orderedSheepY, element, "y", true
+            element.y = this.y + minDistance
+            highIndex = Crafty.sortedInsertion Crafty.orderedSheepY, element, "y", true
+            sheepY = Crafty.orderedSheepY[lowIndex..highIndex]
+
+
+
             xds = 0
             yds = 0
             tooClose = false
             avgDirection = new Crafty.math.Vector2D(0, 0)
             distantSheep = 0
             thisVector = new Crafty.math.Vector2D(this.x, this.y)
-            for i in [0..sheep.length - 1]
-                mm = Crafty(sheep[i])
+            for i in [0..sheepX.length - 1]
+               
+                if sheepY.indexOf(sheepX[i]) == -1 then continue
+
+                mm = sheepX[i]
                 if(mm[0] == this[0])
                     continue
 
@@ -84,15 +109,24 @@ Crafty.c "asteroid",
             if(this.movementLengthFrames > 0)
                 this.movementLengthFrames = this.movementLengthFrames - 1
 
-					if(this._x > Crafty.viewport.width)
-						this.direction.x = this.xspeed = -1
+            if(this._x > Crafty.viewport.width)
+                this.direction.x = this.xspeed = -1
 					
-					if(this._x < -64)
-						this.direction.x = this.xspeed = 1
-					
-					if(this._y > Crafty.viewport.height)
-						this.direction.y = this.yspeed = -1
-					
-					if(this._y < 0)
-						this.direction.y = this.yspeed = 1
+            if(this._x < -64)
+                this.direction.x = this.xspeed = 1
+            if(this._y > Crafty.viewport.height)
+                this.direction.y = this.yspeed = -1
+            if(this._y < 0)
+                this.direction.y = this.yspeed = 1
+
+            # remove sheep from ordered arrays
+            # need to insert it again
+            # console.log Crafty.orderedSheepX, Crafty.orderedSheepY
+            currentIndex = Crafty.orderedSheepX.indexOf(this)
+            Crafty.orderedSheepX[currentIndex..currentIndex] = []
+            currentIndex = Crafty.orderedSheepY.indexOf(this)
+            Crafty.orderedSheepY[currentIndex..currentIndex] = []
+            Crafty.sortedInsertion Crafty.orderedSheepX, this, "x"
+            Crafty.sortedInsertion Crafty.orderedSheepY, this, "y"
+
 					

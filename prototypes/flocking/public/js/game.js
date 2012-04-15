@@ -1,28 +1,41 @@
 (function() {
   var PlayerEntity, ScoreEntity;
 
-  Crafty.c("asteroid", {
+  Crafty.c("sheep", {
     init: function() {
       this.origin("center");
       return this.attr({
-        x: Crafty.math.randomInt(10, Crafty.viewport.width - 10),
-        y: Crafty.math.randomInt(10, Crafty.viewport.height - 10),
+        x: Crafty.math.randomInt(Crafty.viewport.width / 2 - 200, Crafty.viewport.width / 2 + 200),
+        y: Crafty.math.randomInt(200, Crafty.viewport.height - 200),
         xspeed: Crafty.math.randomInt(1, 5),
         yspeed: Crafty.math.randomInt(1, 5),
         rspeed: Crafty.math.randomInt(-5, 5),
         movementLengthFrames: 0,
         direction: new Crafty.math.Vector2D(Crafty.math.randomInt(-1, 1), Crafty.math.randomInt(-1, 1))
       }).bind("EnterFrame", function() {
-        var avgDirection, distance, distantSheep, dx, dy, i, mm, mmVector, sheep, thisVector, tooClose, vx, vy, xds, yds, _ref;
-        sheep = Crafty("asteroid");
+        var avgDirection, currentIndex, distance, distantSheep, dx, dy, element, highIndex, i, lowIndex, minDistance, mm, mmVector, sheepX, sheepY, thisVector, tooClose, vx, vy, xds, yds, _ref, _ref2, _ref3;
+        minDistance = 50;
+        element = {
+          x: this.x - minDistance,
+          y: this.y - minDistance
+        };
+        lowIndex = Crafty.sortedInsertion(Crafty.orderedSheepX, element, "x", true);
+        element.x = this.x + minDistance;
+        highIndex = Crafty.sortedInsertion(Crafty.orderedSheepX, element, "x", true);
+        sheepX = Crafty.orderedSheepX.slice(lowIndex, highIndex + 1 || 9e9);
+        lowIndex = Crafty.sortedInsertion(Crafty.orderedSheepY, element, "y", true);
+        element.y = this.y + minDistance;
+        highIndex = Crafty.sortedInsertion(Crafty.orderedSheepY, element, "y", true);
+        sheepY = Crafty.orderedSheepY.slice(lowIndex, highIndex + 1 || 9e9);
         xds = 0;
         yds = 0;
         tooClose = false;
         avgDirection = new Crafty.math.Vector2D(0, 0);
         distantSheep = 0;
         thisVector = new Crafty.math.Vector2D(this.x, this.y);
-        for (i = 0, _ref = sheep.length - 1; 0 <= _ref ? i <= _ref : i >= _ref; 0 <= _ref ? i++ : i--) {
-          mm = Crafty(sheep[i]);
+        for (i = 0, _ref = sheepX.length - 1; 0 <= _ref ? i <= _ref : i >= _ref; 0 <= _ref ? i++ : i--) {
+          if (sheepY.indexOf(sheepX[i]) === -1) continue;
+          mm = sheepX[i];
           if (mm[0] === this[0]) continue;
           dx = this.x - mm.x;
           dy = this.y - mm.y;
@@ -73,11 +86,21 @@
         this.x += this.xspeed;
         this.y += this.yspeed;
         if (this.movementLengthFrames > 0) {
-          return this.movementLengthFrames = this.movementLengthFrames - 1;
+          this.movementLengthFrames = this.movementLengthFrames - 1;
         }
+        if (this._x > Crafty.viewport.width) this.direction.x = this.xspeed = -1;
+        if (this._x < -64) this.direction.x = this.xspeed = 1;
+        if (this._y > Crafty.viewport.height) this.direction.y = this.yspeed = -1;
+        if (this._y < 0) this.direction.y = this.yspeed = 1;
+        currentIndex = Crafty.orderedSheepX.indexOf(this);
+        [].splice.apply(Crafty.orderedSheepX, [currentIndex, currentIndex - currentIndex + 1].concat(_ref2 = [])), _ref2;
+        currentIndex = Crafty.orderedSheepY.indexOf(this);
+        [].splice.apply(Crafty.orderedSheepY, [currentIndex, currentIndex - currentIndex + 1].concat(_ref3 = [])), _ref3;
+        Crafty.sortedInsertion(Crafty.orderedSheepX, this, "x");
+        return Crafty.sortedInsertion(Crafty.orderedSheepY, this, "y");
       });
     }
-  }, this._x > Crafty.viewport.width ? this.direction.x = this.xspeed = -1 : void 0, this._x < -64 ? this.direction.x = this.xspeed = 1 : void 0, this._y > Crafty.viewport.height ? this.direction.y = this.yspeed = -1 : void 0, this._y < 0 ? this.direction.y = this.yspeed = 1 : void 0);
+  });
 
   PlayerEntity = (function() {
 
@@ -163,15 +186,54 @@
     }
 
     PlayerEntity.prototype.initRocks = function(lower, upper) {
-      var i, rocks, _results;
+      var i, rocks, sheep, _results;
       rocks = Crafty.math.randomInt(lower, upper);
       this.asteroidCount = rocks;
       this.lastCount = rocks;
+      Crafty.orderedSheepX = [];
+      Crafty.orderedSheepY = [];
+      Crafty.sortedInsertion = this.sortedInsertion;
       _results = [];
       for (i = 0; 0 <= rocks ? i <= rocks : i >= rocks; 0 <= rocks ? i++ : i--) {
-        _results.push(Crafty.e("2D, DOM, small, Collision, asteroid"));
+        sheep = Crafty.e("2D, DOM, small, Collision, sheep");
+        this.sortedInsertion(Crafty.orderedSheepX, sheep, "x");
+        _results.push(this.sortedInsertion(Crafty.orderedSheepY, sheep, "y"));
       }
       return _results;
+    };
+
+    PlayerEntity.prototype.printArray = function(arr) {
+      var i, _ref;
+      console.log("-----------");
+      for (i = 0, _ref = arr.length - 1; 0 <= _ref ? i <= _ref : i >= _ref; 0 <= _ref ? i++ : i--) {
+        console.log(i, arr[i].x);
+      }
+      console.log("-----------");
+    };
+
+    PlayerEntity.prototype.sortedInsertion = function(arr, element, property, justIndex) {
+      var imax, imid, imin, p, targetIndex, _ref;
+      if (arr.length === 0 && !justIndex) {
+        arr.push(element);
+        return;
+      }
+      imin = 0;
+      imax = arr.length - 1;
+      imid = 0;
+      while (imax > imin) {
+        imid = (imax + imin) >> 1;
+        p = arr[imid];
+        if (element[property] > p[property]) {
+          imin = imid + 1;
+        } else if (element[property] < p[property]) {
+          imax = imid - 1;
+        } else {
+          break;
+        }
+      }
+      if (justIndex) return imin;
+      targetIndex = arr[imin]["x"] < element["x"] ? imin + 1 : imin;
+      return ([].splice.apply(arr, [targetIndex, targetIndex - targetIndex].concat(_ref = [element])), _ref);
     };
 
     return PlayerEntity;
@@ -212,7 +274,7 @@
   Crafty.scene("main", function() {
     Crafty.background("url('images/bg.png')");
     new ScoreEntity;
-    return new PlayerEntity().initRocks(60, 60);
+    return new PlayerEntity().initRocks(70, 70);
   });
 
 }).call(this);
