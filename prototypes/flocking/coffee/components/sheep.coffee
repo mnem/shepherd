@@ -16,7 +16,7 @@ Crafty.c "sheep",
             #this.rotation += this.rspeed
 
 
-            minDistance = 50
+            minDistance = 70
             element =
                 x: this.x - minDistance
                 y: this.y - minDistance
@@ -51,48 +51,41 @@ Crafty.c "sheep",
                 mm = sheepX[i]
                 if(mm[0] == this[0])
                     continue
+                if Math.abs(this.direction.angleBetween(mm.direction)) > 1.57
+                    continue
+               
 
-                dx = this.x - mm.x
-                dy = this.y - mm.y
                 mmVector = new Crafty.math.Vector2D(mm.x, mm.y)
                 distance = thisVector.distance(mmVector)
                 avgDirection.add(mm.direction)
-                if(distance < 50)
-                    #console.log("too close")
+                #avgDirection.add(mmVector)
+                if(distance < 40)
                     vx = this.x - mm.x
                     vy = this.y - mm.y
                     #normalising the vector
                     vx = vx / distance
                     vy = vy / distance
-                    xds += vx
-                    yds += vy
-                    tooClose = true
-                    this.movementLengthFrames = 0
-
-                else if (distance > 500)
-                    vx = mm.x - this.x
-                    vy = mm.y - this.y
-                    #normalising the vector
-                    vx = vx / distance
-                    vy = vy / distance
-                    xds += vx
-                    yds += vy
-                    tooClose = true
-                    this.movementLengthFrames = 0
+                    mmVector.x = vx
+                    mmVector.y = vy
+                    avgDirection.add(mmVector)
 
 
 
             avgDirection.normalize()
             this.direction.x = avgDirection.x
             this.direction.y = avgDirection.y
-            avgDirection.x += xds
-            avgDirection.y += yds
-            avgDirection.normalize()
+            this.xspeed = this.direction.x
+            this.yspeed = this.direction.y
+            zeroV = new Crafty.math.Vector2D(1,0)
+            this.rotation = this.direction.angleBetween(zeroV) * 180 / Math.PI
 
+            ###
             if(tooClose)
                 this.xspeed = xds
                 this.yspeed = yds
 
+            ###
+            ###
             if (!tooClose && this.movementLengthFrames == 0)
                 this.xspeed = 0
                 this.yspeed = 0
@@ -103,21 +96,19 @@ Crafty.c "sheep",
                     this.yspeed = Crafty.math.randomInt(-1, 1)
                     this.direction.x = this.xspeed
                     this.direction.y = this.yspeed
+            ###
 
             this.x += this.xspeed
             this.y += this.yspeed
-            if(this.movementLengthFrames > 0)
-                this.movementLengthFrames = this.movementLengthFrames - 1
 
-            if(this._x > Crafty.viewport.width)
-                this.direction.x = this.xspeed = -1
-					
-            if(this._x < -64)
-                this.direction.x = this.xspeed = 1
-            if(this._y > Crafty.viewport.height)
-                this.direction.y = this.yspeed = -1
-            if(this._y < 0)
-                this.direction.y = this.yspeed = 1
+            if(this.x > Crafty.viewport.width-50)
+                this.x = 0
+            if(this.x < 0)
+                this.x = Crafty.viewport.width-50 
+            if(this.y > Crafty.viewport.height-50)
+                this.y = 0
+            if(this.y < 0)
+                this.y = Crafty.viewport.height-50
 
             # remove sheep from ordered arrays
             # need to insert it again
