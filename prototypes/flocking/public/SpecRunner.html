@@ -3,33 +3,39 @@
 <html>
 <head>
   <title>Jasmine Spec Runner</title>
+  <META HTTP-EQUIV="Pragma" CONTENT="no-cache">
+  <META HTTP-EQUIV="Expires" CONTENT="-1">
 
   <link rel="shortcut icon" type="image/png" href="js/lib/jasmine-1.2.0.rc3/jasmine_favicon.png">
   <link rel="stylesheet" type="text/css" href="js/lib/jasmine-1.2.0.rc3/jasmine.css">
     <script type="text/javascript">
     var require = {
             baseUrl: "js",
-            deps: ["order!js/lib/jasmine-1.2.0.rc3/jasmine.js",
+            deps: ["require",
+                   "order!js/lib/jasmine-1.2.0.rc3/jasmine.js",
                    "order!js/lib/jasmine-1.2.0.rc3/jasmine-html.js",
-                   "order!cs!spec/array",
                    "domReady!"],
-            callback: function() {
-                  console.log("everything loaded");
-                  var jasmineEnv = jasmine.getEnv();
-                  jasmineEnv.updateInterval = 1000;
-
-                  var htmlReporter = new jasmine.HtmlReporter();
-
-                  jasmineEnv.addReporter(htmlReporter);
-
-                  jasmineEnv.specFilter = function(spec) {
-                    return htmlReporter.specFilter(spec);
-                  };
-
-                  jasmineEnv.execute();
+            callback: function(require) {
+                  
+                  require(["spec/spec_runner"], function(){
 
 
-                        }
+                      var jasmineEnv = jasmine.getEnv();
+                      jasmineEnv.updateInterval = 1000;
+
+                      var htmlReporter = new jasmine.HtmlReporter();
+
+                      jasmineEnv.addReporter(htmlReporter);
+
+                      jasmineEnv.specFilter = function(spec) {
+                        return htmlReporter.specFilter(spec);
+                      };
+
+                      jasmineEnv.execute();
+
+
+                      });
+                   }
                 };
     </script>
     <script type="text/javascript" src="js/require.js"></script>

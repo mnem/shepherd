@@ -21,24 +21,31 @@ define ->
                     y: this.y - minDistance
 
                 
-                lowIndex = Crafty.sortedInsertion Crafty.orderedSheepX, element, "x", true
+                lowIndex = Crafty.sortedInsertion Crafty.orderedSheepX, element, "x", true, false
                 element.x = this.x + minDistance
-                highIndex = Crafty.sortedInsertion Crafty.orderedSheepX, element, "x", true
+                highIndex = Crafty.sortedInsertion Crafty.orderedSheepX, element, "x", true, true
+                if lowIndex == -1 or highIndex == -1
+                    sheepX = []
+                else
+                    sheepX = Crafty.orderedSheepX[lowIndex..highIndex]
+                #console.log "X", sheepX
 
-                sheepX = Crafty.orderedSheepX[lowIndex..highIndex]
-                console.log "X", sheepX
-
-                lowIndex = Crafty.sortedInsertion Crafty.orderedSheepY, element, "y", true
+                lowIndex = Crafty.sortedInsertion Crafty.orderedSheepY, element, "y", true, false
                 element.y = this.y + minDistance
-                highIndex = Crafty.sortedInsertion Crafty.orderedSheepY, element, "y", true
-                sheepY = Crafty.orderedSheepY[lowIndex..highIndex]
-                console.log "Y", sheepY
+                highIndex = Crafty.sortedInsertion Crafty.orderedSheepY, element, "y", true, true
+                if lowIndex == -1 or highIndex == -1
+                    sheepY = []
+                else
+                    sheepY = Crafty.orderedSheepY[lowIndex..highIndex]
+                #console.log "Y", sheepY
 
 
                 xds = 0
                 yds = 0
                 avgDirection = new Crafty.math.Vector2D(0, 0)
+                avgPosition = new Crafty.math.Vector2D(0, 0)
                 count = 0
+                countPosition = 0
                 
                 distantSheep = 0
                 thisVector = new Crafty.math.Vector2D(this.x, this.y)
@@ -50,26 +57,36 @@ define ->
                     if(mm[0] == this[0])
                         continue
 
-                    #a = new Crafty.math.Vector2D(mm.x - this.x, mm.y-this.y)
-                    #a.normalize()
-                    #if Math.abs(this.direction.angleBetween(a)) > 1.57
-                    #    continue
+                    a = new Crafty.math.Vector2D(mm.x - this.x, mm.y-this.y)
+                    a.normalize()
+                    if Math.abs(this.direction.angleBetween(a)) > 1.57
+                        continue
                    
 
                     mmVector = new Crafty.math.Vector2D(mm.x, mm.y)
                     distance = thisVector.distance(mmVector)
                     # add position
-                    avgDirection.add(mmVector)
-                    count += 1
+                    avgPosition.add(mmVector)
+                    countPosition += 1
                     # add direction
                     avgDirection.add(mm.direction)
                     count += 1
-                    if(distance < 30)
+                    if(distance < 40)
                         vx = this.x - mm.x
                         vy = this.y - mm.y
                         # add repulsion
                         avgDirection.add(new Crafty.math.Vector2D(vx,vy))
                         count += 1
+
+
+                if countPosition > 0
+                    avgPosition.x /= countPosition
+                    avgPosition.y /= countPosition
+                    avgPosition.x -= this.x
+                    avgPosition.y -= this.y
+                    avgDirection.add avgPosition
+                    count += 1
+
 
 
                 if count > 0
@@ -81,8 +98,8 @@ define ->
 
 
 
-                this.xspeed = this.maxspeed * this.direction.x
-                this.yspeed = this.maxspeed * this.direction.y
+                this.xspeed = this.direction.x
+                this.yspeed = this.direction.y
 
                 #zeroV = new Crafty.math.Vector2D(1,0)
                 #this.rotation = this.direction.angleBetween(zeroV) * 180 / Math.PI
@@ -117,5 +134,9 @@ define ->
                 Crafty.orderedSheepY[currentIndex..currentIndex] = []
                 Crafty.sortedInsertion Crafty.orderedSheepX, this, "x"
                 Crafty.sortedInsertion Crafty.orderedSheepY, this, "y"
+
+
+                a = new Crafty.math.Vector2D(1,0)
+                this.rotation = 270 - Crafty.math.radToDeg(this.direction.angleBetween(a))
 
                         

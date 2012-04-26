@@ -5,9 +5,11 @@
     <script type="text/javascript">
     var require = {
             baseUrl: "js",
-            deps: ["cs!coffee/scene_main", "js/jquery.min.js", "js/crafty.js", "domReady!"],
-            callback: function(scene) {
-                scene.init();
+            deps: ["require", "js/jquery.min.js", "js/crafty.js", "domReady!"],
+            callback: function(require) {
+                require(["app/scene_main"], function(scene){
+                        scene.init();
+                        });
             }
     };
     </script>

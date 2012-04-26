@@ -1,4 +1,4 @@
-define ["cs!coffee/components/sheep"], () ->
+define ["app/components/sheep"], () ->
     class PlayerEntity
         constructor: (@asteroidCount = 0, @lastCount = 0) ->
             @entity = Crafty.e("2D, Canvas, ship, Controls, Collision")
@@ -117,14 +117,6 @@ define ["cs!coffee/components/sheep"], () ->
                 @sortedInsertion Crafty.orderedSheepX, sheep, "x"
                 @sortedInsertion Crafty.orderedSheepY, sheep, "y"
             
-            myarr = [{x:0},{x:1},{x:2},{x:3},{x:4},{x:5},{x:6}]
-            console.log @sortedInsertion myarr, {x:0.5}, "x", true
-            console.log @sortedInsertion myarr, {x:4.5}, "x", true
-            myarr = [{x:3},{x:5},{x:6}]
-            console.log @sortedInsertion myarr, {x:3.5}, "x", true
-            console.log @sortedInsertion myarr, {x:5.5}, "x", true
-            console.log @sortedInsertion myarr, {x:6.5}, "x", true
-            console.log "blah blah"
             
 
 
@@ -135,10 +127,13 @@ define ["cs!coffee/components/sheep"], () ->
             console.log "-----------"
             return
 
-        sortedInsertion: (arr, element, property, justIndex) ->
-            if arr.length == 0 and not justIndex
-                arr.push element
-                return
+        sortedInsertion: (arr, element, property, justIndex=false, lessThan=true) ->
+            if arr.length == 0
+                if not justIndex
+                    arr.push element
+                    return
+                else
+                    return -1
             imin = 0
             imax = arr.length-1
             imid = 0
@@ -153,9 +148,19 @@ define ["cs!coffee/components/sheep"], () ->
                     break
 
             # find out which index to return
-            return imin if justIndex
 
-            targetIndex = if arr[imin]["x"] < element["x"] then imin+1 else imin
+            if justIndex
+                imin += 1 if arr[imin][property] < element[property]
+                moreThan = not lessThan
+                if moreThan
+                    if imin == arr.length
+                        return -1
+                    else
+                        return imin
+                if lessThan
+                    return imin-1
+
+            targetIndex = if arr[imin][property] < element[property] then imin+1 else imin
             arr[targetIndex...targetIndex] = [element]
 
                 
