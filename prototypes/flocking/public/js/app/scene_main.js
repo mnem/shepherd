@@ -7,7 +7,7 @@
         Crafty.scene("main", function() {
           Crafty.background("url('images/bg.png')");
           new ScoreEntity();
-          return new PlayerEntity().initRocks(20, 20);
+          return new PlayerEntity().initRocks(200, 200);
         });
         return Init.init();
       }

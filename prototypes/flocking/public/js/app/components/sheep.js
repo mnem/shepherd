@@ -12,7 +12,7 @@
           direction: new Crafty.math.Vector2D(Crafty.math.randomInt(-1, 1), Crafty.math.randomInt(-1, 1))
         }).bind("EnterFrame", function() {
           var a, avgDirection, avgPosition, bottomBound, count, countPosition, currentIndex, distance, distantSheep, element, gotoX, gotoY, highIndex, i, lowIndex, minDistance, mm, mmVector, rightBound, sheepX, sheepY, thisVector, vx, vy, xds, yds, _ref, _ref2, _ref3;
-          minDistance = 40;
+          minDistance = Crafty.minDistance + 10;
           element = {
             x: this.x - minDistance,
             y: this.y - minDistance
@@ -54,7 +54,7 @@
             countPosition += 1;
             avgDirection.add(mm.direction);
             count += 1;
-            if (distance < 40) {
+            if (distance < Crafty.minDistance) {
               vx = this.x - mm.x;
               vy = this.y - mm.y;
               avgDirection.add(new Crafty.math.Vector2D(vx, vy));

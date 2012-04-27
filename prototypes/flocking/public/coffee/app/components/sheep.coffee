@@ -15,7 +15,7 @@ define ->
                 #this.rotation += this.rspeed
 
 
-                minDistance = 40
+                minDistance = Crafty.minDistance + 10
                 element =
                     x: this.x - minDistance
                     y: this.y - minDistance
@@ -71,7 +71,7 @@ define ->
                     # add direction
                     avgDirection.add(mm.direction)
                     count += 1
-                    if(distance < 40)
+                    if(distance < Crafty.minDistance)
                         vx = this.x - mm.x
                         vy = this.y - mm.y
                         # add repulsion

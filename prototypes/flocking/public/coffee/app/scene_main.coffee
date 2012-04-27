@@ -5,7 +5,7 @@ define ["app/init","app/entities/score_entity", "app/entities/player_entity"], (
             Crafty.background "url('images/bg.png')"
 
             new ScoreEntity()
-            new PlayerEntity().initRocks(20, 20)
+            new PlayerEntity().initRocks(200, 200)
         Init.init()
 
 

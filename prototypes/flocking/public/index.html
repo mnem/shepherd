@@ -2,14 +2,30 @@
         "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
+    <link href="css/ui-lightness/jquery-ui-1.8.19.custom.css" rel="stylesheet" type="text/css" />
     <script type="text/javascript">
     var require = {
             baseUrl: "js",
-            deps: ["require", "js/jquery.min.js", "js/crafty.js", "domReady!"],
+            deps: ["require", "js/jquery-1.7.2.min.js", "js/jquery-ui-1.8.19.custom.min.js", "js/crafty.js", "domReady!"],
             callback: function(require) {
                 require(["app/scene_main"], function(scene){
                         scene.init();
+                        Crafty.minDistance = 40;
+                        $(function() {
+                                $( "#slider" ).slider({
+                                    value:Crafty.minDistance,
+                                    min: 0,
+                                    max: 100,
+                                    step: 1,
+                                    slide: function( event, ui ) {
+                                        $( "#amount" ).val( "$" + ui.value );
+                                        Crafty.minDistance = ui.value;
+
+                                    }
+                            });
+                            $( "#amount" ).val( "$" + $( "#slider" ).slider( "value" ) );
                         });
+                    });
             }
     };
     </script>
@@ -17,8 +33,19 @@
     <title>Shepard</title>
 	<style>
 	body, html { margin:0; padding: 0; overflow:hidden; font-family:Arial; font-size:20px }
+    #demo-frame > div.demo { padding: 10px !important; };
 	</style>
 </head>
 <body>
+    <div class="demo">
+
+        <p>
+            <label for="amount">Donation amount ($50 increments):</label>
+                <input type="text" id="amount" style="border:0; color:#f6931f; font-weight:bold;" />
+                </p>
+
+                <div id="slider"></div>
+
+            </div><!-- End demo -->
 </body>
 </html>
